@@ -1,0 +1,120 @@
+곡스
+
+tekton
+
+인그레스 
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: foo.bar.com
+    http:
+      paths:
+      - path: /foos1
+        backend:
+          serviceName: s1
+          servicePort: 80
+      - path: /bars2
+        backend:
+          serviceName: s2
+          servicePort: 80
+  - host: bar.foo.com
+    http:
+      paths:
+      - backend:
+          serviceName: s2
+          servicePort: 80
+
+
+
+
+Replicaset 
+
+-Replicationcontroller 와 같은 역할을 하는 컨트롤러
+-Replicationcontroller 보다 풍부한 selector
+selector:
+ matchLabels:
+  component: redis
+ matchExpressions:
+  -{key: tier, operator: in, values: [cache]}
+  -{key: environment, operator: Notln, values: [dev]
+  
+- matchExpressions 연산자
+ -in :key와 values를 지정하여 key,value가 일치하는 pod만 연결
+ -Notln :key는 일치하고 value는 일치하지 않는 pod에 연결
+ -Exists: key에 맞는 label의 pod를 연결
+ -DoesNotExist: key와 다른 label의 pod를 연결
+ 
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: rs-nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+	  name: nginx-pod
+	  labels:
+	    app: webui
+	spec:
+	  containers:
+	  - name: nginx-container
+	    image: nginx:1.14
+		
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod-env
+spec:
+ containers:
+ - name: nginx-container
+   image: nginx:1.14
+   ports:
+   - containerPort:80
+    protocol: TCP
+   env:
+   - name: MYVAR
+     value: "testvalue"
+		
+apiVersion: v1
+kind: Pod
+metadata:
+  name: whoami
+  labels:
+    type: app
+spec:
+ containers:
+ - name: app
+   image: subicura/whoami:1
+   
+
+멀티컨테이너 실습
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: whoami-redis
+  labels:
+    type: stack
+spec:
+ containers:
+ - name: app
+   image: subicura/whoami-redis:1
+   env:
+   - name: REDIS_HOST
+     value: "localhost"
+ - name: db
+   image: redis
+   
+ kubectl exec -it whoami-redis -c app sh  //한 파드에 두개의 컨테이너가 띄워져있어서 하나 선택후 접속
+ 
