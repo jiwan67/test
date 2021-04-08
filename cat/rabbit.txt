@@ -1,0 +1,8 @@
+<<<<<<< HEAD
+stopwan
+웬
+웬수
+=======
+>>>>>>> parent of c4a81a1 (4 test)
+
+revert 테스트당
